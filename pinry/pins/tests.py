@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
-
+import os
 
 # pylint: disable-msg=E1103
 # pylint: disable-msg=R0904
@@ -36,6 +36,12 @@ class NewPinTest(TestCase):
         response = self.client.post(self.url, {
             'url': 'https://github.com/overshard/pinry/raw/master/'
                    'screenshot.png',
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_new_file_pin(self):
+        response = self.client.post(self.url, {
+            'url': 'file://' + os.path.dirname(__file__) + '/../../screenshot.png',
         })
         self.assertEqual(response.status_code, 302)
 

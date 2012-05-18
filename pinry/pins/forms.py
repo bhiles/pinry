@@ -26,9 +26,11 @@ class PinForm(forms.ModelForm):
                 opp_data = data.replace('http://', 'https://')
             elif protocol == 'https':
                 opp_data = data.replace('https://', 'http://')
+            elif protocol == 'file':
+                opp_data = data
             else:
-                raise forms.ValidationError("Currently only support HTTP and "
-                                            "HTTPS protocols, please be sure "
+                raise forms.ValidationError("Currently only support HTTP, HTTPS, and "
+                                            "file protocols, please be sure "
                                             "you include this in the URL.")
 
             try:
