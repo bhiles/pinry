@@ -4,10 +4,44 @@ from .models import Pin
 
 
 class PinForm(forms.ModelForm):
-    url = forms.CharField(label='URL')
+    url = forms.CharField(label='URL', required=False)
+    file  = forms.FileField(label='File', required=False)
 
-    def clean_url(self):
-        data = self.cleaned_data['url']
+    def __init__(self, *args, **kw):
+        super(forms.ModelForm, self).__init__(*args, **kw)
+        
+        # Specify the display order
+        self.fields.keyOrder = [
+            'url',
+            'file',
+            'description']
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        url_data = cleaned_data.get('url')
+        file_data = cleaned_data.get('file')
+
+        # Check URL or file was submitted, and clean or upload
+        if url_data is not None and len(url_data) > 0:
+            cleaned_data['url'] = self.scrub_url(url_data)
+        elif file_data is not None:
+            cleaned_data['url'] = self.upload_file(file_data)
+        else:
+            raise forms.ValidationError("You need to supply either a URL or File") 
+
+        return cleaned_data
+
+    def upload_file(self, file_data):
+        file_name = '/tmp/pinry-test.jpg'
+        destination = open(file_name, 'wb+')
+        for chunk in file_data.chunks():
+            destination.write(chunk)
+        destination.close()
+
+        return 'file://' + file_name
+
+
+    def scrub_url(self, data):
 
         # Test file type
         image_file_types = ['png', 'gif', 'jpeg', 'jpg']

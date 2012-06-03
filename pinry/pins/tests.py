@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 
+import os
+
 
 # pylint: disable-msg=E1103
 # pylint: disable-msg=R0904
@@ -38,6 +40,15 @@ class NewPinTest(TestCase):
                    'screenshot.png',
         })
         self.assertEqual(response.status_code, 302)
+
+    def test_new_file_pin(self):
+        screenshot_path = os.path.dirname(__file__) + '/../../screenshot.png'
+        screenshot_file = open(screenshot_path, 'r')
+        response = self.client.post(self.url, {
+            'file': screenshot_file,
+        })
+        self.assertEqual(response.status_code, 302)
+        screenshot_file.close()
 
     def test_new_pin_invalid_protocol(self):
         response = self.client.post(self.url, {
